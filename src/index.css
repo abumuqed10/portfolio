@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+/* `ar:` variant — applies when the page (or an ancestor) is lang="ar" */
+@custom-variant ar (&:where([lang="ar"], [lang="ar"] *));
+
+/* Desert-luxury palette (contrast notes: primary 5.20:1 and muted 6.03:1 on cream;
+   sand and gold are decorative on light backgrounds, readable only on ink) */
+@theme {
+  --color-primary: #8b5e34;
+  --color-primary-deep: #6f4a28;
+  --color-sand: #c8a97e;
+  --color-gold: #c9a227;
+  --color-surface: #f3ebdd;
+  --color-cream: #faf6ef;
+  --color-field: #fffdf8;
+  --color-ink: #2b1e16;
+  --color-muted: #6b5b4e;
+  --color-line: #e4d5bd;
+  --color-bar: #a3825a;
+  --color-error: #9a3412;
+}
+
+/* Fonts swap with the language */
+:root {
+  --ff-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --ff-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+html[lang="ar"] {
+  --ff-display: "Amiri", "Noto Naskh Arabic", "Times New Roman", serif;
+  --ff-body: "IBM Plex Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif;
+}
+@theme inline {
+  --font-display: var(--ff-display);
+  --font-sans: var(--ff-body);
+}
+
+@layer base {
+  html { scroll-behavior: smooth; color-scheme: light; }
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    line-height: 1.6;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html[lang="ar"] body { font-size: 1.0625rem; line-height: 1.85; }
+  :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+  .on-ink :focus-visible { outline-color: var(--color-gold); }
+  section[id] { scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px)); }
+  h1, h2, h3, h4 { text-wrap: balance; }
+}
+
+/* Page gutter that also clears phone safe areas */
+@utility wrap {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  @media (min-width: 600px) {
+    padding-left: max(32px, env(safe-area-inset-left, 0px));
+    padding-right: max(32px, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Al Sadu "teeth" strip */
+@utility weave-edge {
+  height: 14px;
+  border-top: 1px solid var(--color-gold);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14' viewBox='0 0 20 14'%3E%3Crect width='20' height='14' fill='%23F3EBDD'/%3E%3Cpath d='M0 14 10 3 20 14Z' fill='%238B5E34'/%3E%3Cpath d='M10 8 13 11 10 14 7 11Z' fill='%23C9A227'/%3E%3C/svg%3E") repeat-x;
+}
+
+@layer components {
+  .diamond { display: inline-block; width: 6px; height: 6px; background: var(--color-gold); transform: rotate(45deg); flex: none; }
+
+  /* faint diamond lattice behind the hero, fading toward the text side */
+  .hero-lattice::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; opacity: .14;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%23C9A227' stroke-width='1'/%3E%3Cpath d='M24 18 30 24 24 30 18 24Z' fill='%23C8A97E'/%3E%3C/svg%3E");
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to left, #000 0%, transparent 60%);
+  }
+  [dir="rtl"] .hero-lattice::before { mask-image: linear-gradient(to right, #000 0%, transparent 60%); }
+  @media (max-width: 900px) {
+    .hero-lattice::before, [dir="rtl"] .hero-lattice::before { mask-image: linear-gradient(to bottom, transparent 0%, #000 100%); opacity: .1; }
+  }
+
+  /* gold hairline arch around the Sadu strip */
+  .arch-frame::after { content: ""; position: absolute; inset: -8px; border: 1px solid var(--color-gold); border-radius: 999px 999px 0 0; pointer-events: none; }
+
+  /* diamond bullet list */
+  .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .points li { position: relative; padding-inline-start: 20px; }
+  .points li::before { content: ""; position: absolute; inset-inline-start: 2px; top: .72em; width: 6px; height: 6px; background: var(--color-gold); transform: rotate(45deg); }
+
+  /* timeline marker */
+  .t-marker::before { content: ""; position: absolute; inset-inline-start: -6.5px; top: 9px; width: 12px; height: 12px; background: var(--color-cream); border: 1.5px solid var(--color-gold); transform: rotate(45deg); }
+
+  .kicker::before { content: ""; width: 32px; height: 1px; background: var(--color-gold); }
+
+  .proj-dialog::backdrop { background: rgb(43 30 22 / .55); }
+
+  /* mirror directional arrows in RTL */
+  [dir="rtl"] .flip { transform: scaleX(-1); }
+
+  /* gentle load-in from a visible resting state */
+  @media (prefers-reduced-motion: no-preference) {
+    .rise { animation: rise .7s cubic-bezier(.2, .7, .2, 1) both; }
+    .rise-2 { animation-delay: .12s; }
+    .rise-3 { animation-delay: .22s; }
+    @keyframes rise { from { opacity: .35; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
+}
